@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - AA Mart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .checkout-page { padding: 28px 0 60px; }
+    .checkout-grid { display: grid; grid-template-columns: 1fr 380px; gap: 20px; align-items: start; }
+    .checkout-steps { display: flex; align-items: center; gap: 0; margin-bottom: 24px; }
+    .step { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+    .step-num { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+    .step.active .step-num { background: var(--blue); color: #fff; }
+    .step.done .step-num { background: var(--green); color: #fff; }
+    .step.inactive .step-num { background: #e0e0e0; color: #999; }
+    .step.active .step-label { color: var(--blue); font-weight: 700; }
+    .step.inactive .step-label { color: #aaa; }
+    .step-line { flex: 1; height: 2px; background: #e0e0e0; margin: 0 8px; max-width: 60px; }
+    .step-line.done { background: var(--green); }
+    .checkout-card { background: #fff; border-radius: 10px; padding: 24px; margin-bottom: 16px; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+    .checkout-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    .checkout-card h3 span { font-size: 20px; }
+    .form-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; font-weight: 600; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: .4px; }
+    .field label .req { color: var(--red); }
+    .field input, .field select, .field textarea { width: 100%; padding: 11px 14px; border: 1.5px solid var(--gray-border); border-radius: 7px; font-size: 14px; color: #333; transition: border .2s, box-shadow .2s; box-sizing: border-box; font-family: inherit; background: #fff; }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(13,110,253,.1); outline: none; }
+    .field input::placeholder, .field textarea::placeholder { color: #bbb; }
+    .field .err-msg { font-size: 11px; color: var(--red); margin-top: 4px; display: none; }
+    .field.has-error .err-msg { display: block; }
+    .field.has-error input, .field.has-error select { border-color: var(--red); }
+    .payment-methods { display: flex; flex-direction: column; gap: 10px; }
+    .payment-option { display: flex; align-items: center; gap: 14px; padding: 14px 16px; border: 1.5px solid var(--gray-border); border-radius: 8px; cursor: pointer; transition: all .2s; position: relative; }
+    .payment-option:hover { border-color: var(--blue); background: #fafcff; }
+    .payment-option.selected { border-color: var(--blue); background: #f0f5ff; }
+    .payment-option input[type=radio] { width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; flex-shrink: 0; }
+    .payment-icon { font-size: 24px; }
+    .payment-label { font-size: 14px; font-weight: 600; color: #333; }
+    .payment-sub { font-size: 12px; color: #888; margin-top: 1px; }
+    .payment-cards { margin-left: auto; display: flex; gap: 4px; }
+    .card-chip { background: #f0f0f0; border-radius: 3px; padding: 2px 6px; font-size: 10px; font-weight: 700; color: #555; }
+    .card-chip.visa { background: #1a1f71; color: #fff; }
+    .card-chip.mc { background: #eb001b; color: #fff; }
+    .card-chip.pp { background: #003087; color: #fff; }
+    .card-fields { display: none; margin-top: 14px; padding-top: 14px; border-top: 1px solid #f0f0f0; }
+    .card-fields.show { display: block; }
+    .order-summary { background: #fff; border-radius: 10px; padding: 24px; box-shadow: 0 1px 4px rgba(0,0,0,.06); position: sticky; top: 80px; }
+    .order-summary h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+    .summary-items { max-height: 280px; overflow-y: auto; margin-bottom: 16px; padding-right: 4px; }
+    .summary-item { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f5f5f5; }
+    .summary-item:last-child { border-bottom: none; }
+    .summary-img { width: 56px; height: 56px; border-radius: 7px; background: #f5f5f5; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
+    .summary-img img { width: 100%; height: 100%; object-fit: cover; }
+    .summary-item-info { flex: 1; min-width: 0; }
+    .summary-item-name { font-size: 12px; font-weight: 600; color: #333; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .summary-item-qty { font-size: 11px; color: #888; margin-top: 3px; }
+    .summary-item-price { font-size: 13px; font-weight: 700; color: var(--red); flex-shrink: 0; }
+    .summary-line { display: flex; justify-content: space-between; font-size: 13px; color: #555; margin-bottom: 8px; }
+    .summary-line .val { font-weight: 600; color: #333; }
+    .summary-divider { border: none; border-top: 1px solid #f0f0f0; margin: 12px 0; }
+    .summary-total { display: flex; justify-content: space-between; font-size: 17px; font-weight: 800; }
+    .summary-total .total-val { color: var(--red); }
+    .btn-place-order { width: 100%; background: var(--blue); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; margin-top: 16px; transition: background .2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-place-order:hover { background: var(--blue-dark); }
+    .btn-place-order:disabled { background: #aaa; cursor: not-allowed; }
+    .secure-badge { text-align: center; font-size: 11px; color: #999; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    .coupon-row { display: flex; gap: 8px; margin-bottom: 12px; }
+    .coupon-row input { flex: 1; padding: 9px 12px; border: 1.5px solid var(--gray-border); border-radius: 6px; font-size: 13px; }
+    .coupon-row button { background: var(--blue); color: #fff; border: none; padding: 9px 16px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .success-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 3000; align-items: center; justify-content: center; }
+    .success-overlay.show { display: flex; }
+    .success-box { background: #fff; border-radius: 16px; padding: 40px; text-align: center; max-width: 440px; width: 90%; animation: popIn .3s ease; }
+    @keyframes popIn { from { transform: scale(.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .success-icon { font-size: 72px; margin-bottom: 16px; display: block; }
+    .success-box h2 { font-size: 24px; font-weight: 800; color: #333; margin-bottom: 8px; }
+    .success-box p { font-size: 14px; color: #666; line-height: 1.6; margin-bottom: 6px; }
+    .success-order-id { font-size: 13px; background: #f0f5ff; color: var(--blue); font-weight: 700; padding: 8px 16px; border-radius: 6px; display: inline-block; margin: 12px 0; }
+    .success-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
+    .btn-continue { background: var(--blue); color: #fff; border: none; padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .btn-orders-link { background: #fff; color: var(--blue); border: 1.5px solid var(--blue); padding: 12px 28px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .empty-cart-notice { text-align: center; padding: 80px 20px; background: #fff; border-radius: 10px; }
+    .empty-cart-notice .icon { font-size: 64px; margin-bottom: 16px; }
+    @media (max-width: 900px) {
+      .checkout-grid { grid-template-columns: 1fr; }
+      .form-row-2 { grid-template-columns: 1fr; }
+      .form-row-3 { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay"></div>
+<div class="modal-box">
+  <button class="modal-close">×</button>
+  <div class="modal-logo">
+    <div class="modal-logo-inner"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;"></div>
+    <p>Sign in to continue</p>
+  </div>
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-tab="login">Sign In</button>
+    <button class="modal-tab" data-tab="register">Join Free</button>
+  </div>
+  <div id="login-form" class="modal-form" data-form="login">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Email</label><input id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="login-password" type="password" placeholder="Enter your password"></div>
+      <button class="modal-submit" onclick="handleLogin(event)">Sign In</button>
+    </form>
+    <div class="modal-switch">Don't have an account? <span onclick="switchTab('register')">Join Free</span></div>
+  </div>
+  <div id="register-form" class="modal-form" data-form="register" style="display:none">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Full Name</label><input id="reg-name" type="text" placeholder="Your full name"></div>
+      <div class="modal-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="reg-password" type="password" placeholder="Min. 6 characters"></div>
+      <button class="modal-submit" onclick="handleRegister(event)">Create Account</button>
+    </form>
+    <div class="modal-switch">Already have an account? <span onclick="switchTab('login')">Sign In</span></div>
+  </div>
+</div>
+
+<!-- SUCCESS OVERLAY -->
+<div class="success-overlay" id="success-overlay">
+  <div class="success-box">
+    <span class="success-icon">🎉</span>
+    <h2>Order Placed!</h2>
+    <p>Thank you for your purchase. Your order has been confirmed and is being processed.</p>
+    <div class="success-order-id" id="success-order-id">ORD-XXXX</div>
+    <p style="font-size:12px;color:#999">You'll receive a confirmation email shortly.</p>
+    <div class="success-actions">
+      <button class="btn-orders-link" onclick="location.href='orders.html'">📦 View Orders</button>
+      <button class="btn-continue" onclick="location.href='products.html'">Continue Shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<header class="top-nav">
+  <div class="container">
+    <div class="top-nav-inner">
+      <a href="index.html" class="logo"><img src="logo.png" alt="AA Mart" style="height:36px;width:auto;display:block;"></a>
+      <div class="search-wrap" style="flex:1">
+        <select class="search-cat-select"><option>All category</option><option>Electronics</option><option>Fashion</option><option>Home</option><option>Sports</option></select>
+        <input type="text" class="search-input" placeholder="Search products...">
+        <button class="search-btn">Search</button>
+        <div class="suggestions-box"></div>
+      </div>
+      <div class="header-actions">
+        <div class="action-item action-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Account</span>
+        </div>
+        <div class="action-item action-orders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2"/></svg>
+          <span>Orders</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN NAV -->
+<nav class="main-nav">
+  <div class="container">
+    <div class="main-nav-inner">
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html?cat=Electronics">Electronics</a>
+        <a href="products.html?cat=Fashion">Fashion</a>
+        <a href="products.html">All Products</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- CHECKOUT PAGE -->
+<main class="checkout-page">
+  <div class="container">
+    <div class="breadcrumb" style="margin-bottom:20px">
+      <a href="index.html">Home</a><span class="breadcrumb-sep">›</span>
+      <a href="#" onclick="history.back();return false">Cart</a><span class="breadcrumb-sep">›</span>
+      <span>Checkout</span>
+    </div>
+    <div class="checkout-steps" style="margin-bottom:28px">
+      <div class="step done"><div class="step-num">✓</div><div class="step-label">Cart</div></div>
+      <div class="step-line done"></div>
+      <div class="step active"><div class="step-num">2</div><div class="step-label">Shipping</div></div>
+      <div class="step-line"></div>
+      <div class="step inactive"><div class="step-num">3</div><div class="step-label">Payment</div></div>
+      <div class="step-line"></div>
+      <div class="step inactive"><div class="step-num">4</div><div class="step-label">Confirm</div></div>
+    </div>
+    <div id="checkout-root"></div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid #2d2d2d">
+      <div class="footer-logo"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;filter:brightness(0) invert(1);"></div>
+      <p style="color:#666;font-size:13px">© 2025 AA Mart. All rights reserved.</p>
+      <div style="display:flex;gap:16px;font-size:13px">
+        <a href="#" style="color:#999">Privacy</a>
+        <a href="#" style="color:#999">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast"></div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('checkout-root');
+
+  function renderCheckout() {
+    if (!cart.length) {
+      root.innerHTML = `
+        <div class="empty-cart-notice">
+          <div class="icon">🛒</div>
+          <h3 style="font-size:20px;font-weight:700;margin-bottom:8px">Your cart is empty</h3>
+          <p style="color:#888;margin-bottom:20px">Add some products before checking out.</p>
+          <a href="products.html" style="background:var(--blue);color:#fff;border:none;padding:13px 32px;border-radius:8px;font-size:15px;font-weight:700;cursor:pointer;display:inline-block">Browse Products →</a>
+        </div>`;
+      return;
+    }
+
+    const subtotal = cartTotal();
+    const shipping = subtotal >= 50 ? 0 : 9.99;
+    const tax = +(subtotal * 0.08).toFixed(2);
+    const total = +(subtotal + shipping + tax).toFixed(2);
+
+    root.innerHTML = `
+      <div class="checkout-grid">
+        <div>
+          <div class="checkout-card">
+            <h3><span>👤</span> Contact Information</h3>
+            <div class="form-row-2">
+              <div class="field" id="field-fname">
+                <label>First Name <span class="req">*</span></label>
+                <input id="fname" type="text" placeholder="John" value="${currentUser ? currentUser.name.split(' ')[0] : ''}">
+                <div class="err-msg">Please enter your first name</div>
+              </div>
+              <div class="field" id="field-lname">
+                <label>Last Name <span class="req">*</span></label>
+                <input id="lname" type="text" placeholder="Smith" value="${currentUser ? (currentUser.name.split(' ')[1] || '') : ''}">
+                <div class="err-msg">Please enter your last name</div>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="field" id="field-email">
+                <label>Email Address <span class="req">*</span></label>
+                <input id="email" type="email" placeholder="you@company.com" value="${currentUser ? currentUser.email : ''}">
+                <div class="err-msg">Please enter a valid email</div>
+              </div>
+              <div class="field" id="field-phone">
+                <label>Phone Number <span class="req">*</span></label>
+                <input id="phone" type="tel" placeholder="+1 (555) 000-0000">
+                <div class="err-msg">Please enter your phone number</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <h3><span>📦</span> Shipping Address</h3>
+            <div class="field" id="field-address">
+              <label>Street Address <span class="req">*</span></label>
+              <input id="address" type="text" placeholder="123 Main Street, Apt 4B">
+              <div class="err-msg">Please enter your street address</div>
+            </div>
+            <div class="form-row-2">
+              <div class="field" id="field-city">
+                <label>City <span class="req">*</span></label>
+                <input id="city" type="text" placeholder="New York">
+                <div class="err-msg">Please enter your city</div>
+              </div>
+              <div class="field" id="field-state">
+                <label>State / Province <span class="req">*</span></label>
+                <input id="state" type="text" placeholder="NY">
+                <div class="err-msg">Please enter your state</div>
+              </div>
+            </div>
+            <div class="form-row-2">
+              <div class="field" id="field-zip">
+                <label>ZIP / Postal Code <span class="req">*</span></label>
+                <input id="zip" type="text" placeholder="10001">
+                <div class="err-msg">Please enter your ZIP code</div>
+              </div>
+              <div class="field">
+                <label>Country</label>
+                <select id="country">
+                  <option>United States</option><option>United Kingdom</option><option>Canada</option>
+                  <option>Australia</option><option>Germany</option><option>France</option>
+                  <option>China</option><option>India</option><option>Japan</option>
+                  <option>Brazil</option><option>South Korea</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="field">
+              <label>Delivery Notes (Optional)</label>
+              <textarea id="notes" placeholder="Leave at door, ring bell, special instructions..." rows="2"></textarea>
+            </div>
+          </div>
+
+          <div class="checkout-card">
+            <h3><span>💳</span> Payment Method</h3>
+            <div class="payment-methods">
+              <label class="payment-option selected" id="pay-card">
+                <input type="radio" name="payment" value="card" checked onchange="selectPayment('card')">
+                <span class="payment-icon">💳</span>
+                <div><div class="payment-label">Credit / Debit Card</div><div class="payment-sub">Visa, Mastercard, Amex</div></div>
+                <div class="payment-cards"><span class="card-chip visa">VISA</span><span class="card-chip mc">MC</span></div>
+              </label>
+              <div class="card-fields show" id="card-fields">
+                <div class="field" id="field-cardnum">
+                  <label>Card Number <span class="req">*</span></label>
+                  <input id="cardnum" type="text" placeholder="1234 5678 9012 3456" maxlength="19" oninput="formatCard(this)">
+                  <div class="err-msg">Please enter a valid card number</div>
+                </div>
+                <div class="form-row-3">
+                  <div class="field" id="field-cardholder">
+                    <label>Cardholder Name <span class="req">*</span></label>
+                    <input id="cardholder" type="text" placeholder="JOHN SMITH">
+                    <div class="err-msg">Required</div>
+                  </div>
+                  <div class="field" id="field-expiry">
+                    <label>Expiry <span class="req">*</span></label>
+                    <input id="expiry" type="text" placeholder="MM/YY" maxlength="5" oninput="formatExpiry(this)">
+                    <div class="err-msg">Required</div>
+                  </div>
+                  <div class="field" id="field-cvv">
+                    <label>CVV <span class="req">*</span></label>
+                    <input id="cvv" type="text" placeholder="123" maxlength="4" oninput="this.value=this.value.replace(/\\D/g,'')">
+                    <div class="err-msg">Required</div>
+                  </div>
+                </div>
+              </div>
+              <label class="payment-option" id="pay-paypal">
+                <input type="radio" name="payment" value="paypal" onchange="selectPayment('paypal')">
+                <span class="payment-icon">🅿️</span>
+                <div><div class="payment-label">PayPal</div><div class="payment-sub">Fast &amp; secure checkout</div></div>
+                <div class="payment-cards"><span class="card-chip pp">PP</span></div>
+              </label>
+              <label class="payment-option" id="pay-bank">
+                <input type="radio" name="payment" value="bank" onchange="selectPayment('bank')">
+                <span class="payment-icon">🏦</span>
+                <div><div class="payment-label">Bank Transfer</div><div class="payment-sub">Wire transfer, ACH</div></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="order-summary">
+            <h3>🧾 Order Summary</h3>
+            <div class="coupon-row">
+              <input type="text" id="coupon-input" placeholder="Coupon code">
+              <button onclick="applyCoupon()">Apply</button>
+            </div>
+            <div class="summary-items" id="summary-items"></div>
+            <hr class="summary-divider">
+            <div class="summary-line"><span>Subtotal (${cart.reduce((s,i)=>s+i.qty,0)} items)</span><span class="val">$${subtotal.toFixed(2)}</span></div>
+            <div class="summary-line"><span>Shipping</span><span class="val" style="${shipping===0?'color:var(--green)':''}">${shipping===0?'FREE':'$'+shipping.toFixed(2)}</span></div>
+            <div class="summary-line"><span>Tax (8%)</span><span class="val">$${tax.toFixed(2)}</span></div>
+            <div class="summary-line" id="discount-line" style="display:none;color:var(--green)"><span>Discount</span><span class="val" id="discount-val"></span></div>
+            <hr class="summary-divider">
+            <div class="summary-total"><span>Total</span><span class="total-val" id="final-total">$${total.toFixed(2)}</span></div>
+            <button class="btn-place-order" onclick="placeOrder()">🔒 Place Order · $${total.toFixed(2)}</button>
+            <div class="secure-badge">🔒 256-bit SSL encryption — Your info is safe</div>
+            <div style="margin-top:16px;padding:12px;background:#f0f9ff;border-radius:8px;font-size:12px;color:#1565c0;text-align:center">
+              🚀 Estimated delivery: <strong>3–7 business days</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const summaryItems = document.getElementById('summary-items');
+    if (summaryItems) {
+      summaryItems.innerHTML = cart.map(item => `
+        <div class="summary-item">
+          <div class="summary-img">
+            ${item.img
+              ? `<img src="${item.img}" alt="${item.name}" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=\\"font-size:24px\\">${item.emoji}</span>'">`
+              : `<span style="font-size:24px">${item.emoji}</span>`
+            }
+          </div>
+          <div class="summary-item-info">
+            <div class="summary-item-name">${item.name}</div>
+            <div class="summary-item-qty">Qty: ${item.qty}</div>
+          </div>
+          <div class="summary-item-price">$${(item.price * item.qty).toFixed(2)}</div>
+        </div>
+      `).join('');
+    }
+  }
+
+  window.selectPayment = function(type) {
+    document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+    document.getElementById('pay-' + type)?.classList.add('selected');
+    const cardFields = document.getElementById('card-fields');
+    if (cardFields) cardFields.classList.toggle('show', type === 'card');
+  };
+
+  window.formatCard = function(input) {
+    let val = input.value.replace(/\D/g,'').slice(0,16);
+    input.value = val.replace(/(.{4})/g,'$1 ').trim();
+  };
+
+  window.formatExpiry = function(input) {
+    let val = input.value.replace(/\D/g,'');
+    if (val.length >= 2) val = val.slice(0,2) + '/' + val.slice(2,4);
+    input.value = val;
+  };
+
+  window.applyCoupon = function() {
+    const code = document.getElementById('coupon-input')?.value.trim().toUpperCase();
+    const discountLine = document.getElementById('discount-line');
+    const discountVal = document.getElementById('discount-val');
+    const finalTotal = document.getElementById('final-total');
+    if (!code) { showToast('Enter a coupon code', 'error'); return; }
+    const coupons = { 'SAVE10': 0.10, 'AAMART20': 0.20, 'WELCOME15': 0.15 };
+    if (coupons[code]) {
+      const subtotal = cartTotal();
+      const shipping = subtotal >= 50 ? 0 : 9.99;
+      const tax = +(subtotal * 0.08).toFixed(2);
+      const discount = +(subtotal * coupons[code]).toFixed(2);
+      const newTotal = Math.max(0, subtotal + shipping + tax - discount).toFixed(2);
+      if (discountLine) discountLine.style.display = 'flex';
+      if (discountVal) discountVal.textContent = '-$' + discount.toFixed(2);
+      if (finalTotal) finalTotal.textContent = '$' + newTotal;
+      document.querySelector('.btn-place-order').textContent = `🔒 Place Order · $${newTotal}`;
+      showToast(`Coupon applied! ${coupons[code]*100}% off 🎉`, 'success');
+    } else {
+      showToast('Invalid coupon code', 'error');
+    }
+  };
+
+  function validate() {
+    const required = [
+      { id: 'fname', fieldId: 'field-fname' },
+      { id: 'lname', fieldId: 'field-lname' },
+      { id: 'email', fieldId: 'field-email', validate: v => v.includes('@') },
+      { id: 'phone', fieldId: 'field-phone' },
+      { id: 'address', fieldId: 'field-address' },
+      { id: 'city', fieldId: 'field-city' },
+      { id: 'state', fieldId: 'field-state' },
+      { id: 'zip', fieldId: 'field-zip' },
+    ];
+    const payType = document.querySelector('input[name="payment"]:checked')?.value;
+    if (payType === 'card') {
+      required.push(
+        { id: 'cardnum', fieldId: 'field-cardnum', validate: v => v.replace(/\s/g,'').length === 16 },
+        { id: 'cardholder', fieldId: 'field-cardholder' },
+        { id: 'expiry', fieldId: 'field-expiry', validate: v => /^\d{2}\/\d{2}$/.test(v) },
+        { id: 'cvv', fieldId: 'field-cvv', validate: v => v.length >= 3 },
+      );
+    }
+    let valid = true;
+    required.forEach(r => {
+      const el = document.getElementById(r.id);
+      const field = document.getElementById(r.fieldId);
+      if (!el || !field) return;
+      const val = el.value.trim();
+      const ok = r.validate ? r.validate(val) : val.length > 0;
+      if (!ok) { field.classList.add('has-error'); valid = false; }
+      else field.classList.remove('has-error');
+    });
+    if (!valid) { showToast('Please fill in all required fields', 'error'); document.querySelector('.has-error')?.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+    return valid;
+  }
+
+  window.placeOrder = function() {
+    if (!currentUser) { openModal('login'); return; }
+    if (!validate()) return;
+    const btn = document.querySelector('.btn-place-order');
+    btn.disabled = true;
+    btn.textContent = '⏳ Processing...';
+    setTimeout(() => {
+      const orderId = 'ORD-' + Date.now().toString().slice(-8);
+      const orders = store.get('aamart_orders') || [];
+      orders.unshift({
+        id: orderId,
+        date: new Date().toLocaleDateString(),
+        items: [...cart],
+        total: cartTotal(),
+        status: 'Processing',
+        address: `${document.getElementById('fname').value} ${document.getElementById('lname').value}, ${document.getElementById('address').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zip').value}, ${document.getElementById('country').value}`,
+        phone: document.getElementById('phone').value,
+        email: document.getElementById('email').value,
+      });
+      store.set('aamart_orders', orders);
+      cart = [];
+      saveCart();
+      updateCartBadge();
+      document.getElementById('success-order-id').textContent = orderId;
+      document.getElementById('success-overlay').classList.add('show');
+    }, 1400);
+  };
+
+  renderCheckout();
+});
+</script>
+</body>
+</html>

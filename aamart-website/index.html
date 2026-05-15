@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AA Mart - B2B Global Marketplace</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- ===== CART SIDEBAR ===== -->
+<div class="cart-overlay"></div>
+<div class="cart-sidebar">
+  <div class="cart-header">
+    <h3>🛒 Shopping Cart</h3>
+    <button class="cart-close">×</button>
+  </div>
+  <div class="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total:</span><span class="cart-total-val">$0.00</span></div>
+    <button class="btn-checkout">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- ===== LOGIN MODAL ===== -->
+<div class="modal-overlay"></div>
+<div class="modal-box">
+  <button class="modal-close">×</button>
+  <div class="modal-logo">
+    <div class="modal-logo-inner"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;"></div>
+    <p>Source anything. Sell everything.</p>
+  </div>
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-tab="login">Sign In</button>
+    <button class="modal-tab" data-tab="register">Join Free</button>
+  </div>
+  <div id="login-form" class="modal-form" data-form="login">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Email Address</label><input id="login-email" type="email" placeholder="you@company.com" autocomplete="email"></div>
+      <div class="modal-field"><label>Password</label><input id="login-password" type="password" placeholder="Enter your password" autocomplete="current-password"></div>
+      <button class="modal-submit" onclick="handleLogin(event)">Sign In</button>
+    </form>
+    <div class="modal-switch">Don't have an account? <span onclick="switchTab('register')">Join Free</span></div>
+  </div>
+  <div id="register-form" class="modal-form" data-form="register" style="display:none">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Full Name</label><input id="reg-name" type="text" placeholder="Your full name" autocomplete="name"></div>
+      <div class="modal-field"><label>Email Address</label><input id="reg-email" type="email" placeholder="you@company.com" autocomplete="email"></div>
+      <div class="modal-field"><label>Password</label><input id="reg-password" type="password" placeholder="Min. 6 characters" autocomplete="new-password"></div>
+      <button class="modal-submit" onclick="handleRegister(event)">Create Account</button>
+    </form>
+    <div class="modal-switch">Already have an account? <span onclick="switchTab('login')">Sign In</span></div>
+  </div>
+</div>
+
+<!-- ===== TOP NAV ===== -->
+<header class="top-nav">
+  <div class="container">
+    <div class="top-nav-inner">
+      <a href="index.html" class="logo"><img src="logo.png" alt="AA Mart" style="height:36px;width:auto;display:block;"></a>
+      <div class="search-wrap">
+        <select class="search-cat-select">
+          <option>All category</option>
+          <option>Electronics</option>
+          <option>Fashion</option>
+          <option>Home</option>
+          <option>Sports</option>
+        </select>
+        <input type="text" class="search-input" placeholder="Search products, categories, suppliers...">
+        <button class="search-btn">Search</button>
+        <div class="suggestions-box"></div>
+      </div>
+      <div class="header-actions">
+        <div class="action-item action-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Account</span>
+        </div>
+        <div class="action-item action-message">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          <span>Messages</span>
+        </div>
+        <div class="action-item action-orders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2M9 5a2 2 0 0 0 2-2h2a2 2 0 0 0 2 2"/></svg>
+          <span>Orders</span>
+        </div>
+        <div class="action-item cart-icon" style="position:relative">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span>Cart</span>
+          <span class="cart-count">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== MAIN NAV ===== -->
+<nav class="main-nav">
+  <div class="container">
+    <div class="main-nav-inner">
+      <div class="nav-all-cat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        All categories
+        <div class="cat-dropdown">
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Electronics'">📱 Electronics</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Fashion'">👗 Fashion</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Home'">🏠 Home &amp; Garden</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Sports'">⚽ Sports</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html'">🔧 Tools &amp; Hardware</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html'">🚗 Automotive</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html'">🍎 Health &amp; Beauty</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html'">📚 Office &amp; School</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html?cat=Electronics">Electronics</a>
+        <a href="products.html?cat=Fashion">Fashion</a>
+        <a href="products.html?cat=Home">Home</a>
+        <a href="products.html?cat=Sports">Sports</a>
+        <a href="products.html">All Products</a>
+      </div>
+      <div class="nav-right">
+        <span onclick="openModal('login')">Sign in</span>
+        <span onclick="openModal('register')">Join Free</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<main>
+<div class="hero-section">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-cats">
+        <ul>
+          <li class="active" onclick="location.href='products.html?cat=Electronics'">📱 Electronics</li>
+          <li onclick="location.href='products.html?cat=Fashion'">👗 Fashion &amp; Clothing</li>
+          <li onclick="location.href='products.html?cat=Home'">🏠 Home &amp; Garden</li>
+          <li onclick="location.href='products.html?cat=Sports'">⚽ Sports &amp; Outdoor</li>
+          <li onclick="location.href='products.html'">🚗 Automotive</li>
+          <li onclick="location.href='products.html'">🍎 Health &amp; Beauty</li>
+          <li onclick="location.href='products.html'">🔧 Tools &amp; Hardware</li>
+          <li onclick="location.href='products.html'">📚 Office Supplies</li>
+          <li onclick="location.href='products.html'">🐾 Pet Supplies</li>
+          <li onclick="location.href='products.html'">🎮 Toys &amp; Hobbies</li>
+        </ul>
+      </div>
+      <div class="hero-banner">
+        <div class="hero-banner-content">
+          <p>Latest arrivals 2025</p>
+          <h2>Latest Collection<br>of Summer Fashion</h2>
+          <button class="btn-learn" onclick="location.href='products.html?cat=Fashion'">Shop Now →</button>
+        </div>
+        <img src="https://images.unsplash.com/photo-1512436991641-6745cdb1723f?w=600&q=80&auto=format&fit=crop" alt="Fashion Banner" onerror="this.style.display='none'">
+      </div>
+      <div class="hero-right">
+        <div class="user-panel">
+          <div class="avatar">👤</div>
+          <p>Hi, user</p>
+          <button class="btn-join">Join Free</button>
+          <button class="btn-login">Sign In</button>
+          <button class="btn-logout" style="display:none">Sign Out</button>
+        </div>
+        <div class="promo-card promo-orange" onclick="location.href='products.html'">
+          <h4>🔥 Flash Deals</h4>
+          <p>Up to 70% off today</p>
+        </div>
+        <div class="promo-card promo-teal" onclick="location.href='products.html'">
+          <h4>📦 Bulk Orders</h4>
+          <p>Save more on large qty</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DEALS SECTION -->
+<div class="container section">
+  <div class="deals-box">
+    <div class="deals-left">
+      <h3>🔥 Deals of the Day</h3>
+      <p>Flash sales end soon</p>
+      <div class="countdown">
+        <div class="countdown-unit"><span class="num cd-days">03</span><span class="label">DAYS</span></div>
+        <div class="countdown-unit"><span class="num cd-hours">14</span><span class="label">HRS</span></div>
+        <div class="countdown-unit"><span class="num cd-mins">22</span><span class="label">MIN</span></div>
+        <div class="countdown-unit"><span class="num cd-secs">05</span><span class="label">SEC</span></div>
+      </div>
+    </div>
+    <div class="deals-products" id="deals-grid"></div>
+  </div>
+</div>
+
+<!-- ELECTRONICS PROMO -->
+<div class="container section">
+  <div class="cat-promo-box">
+    <div class="cat-promo-left electronics">
+      <div>
+        <h3>🔌 Consumer Electronics</h3>
+        <p style="font-size:12px;color:#666;margin-top:4px">Best sellers this week</p>
+      </div>
+      <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80&auto=format&fit=crop" alt="Electronics" onerror="this.style.display='none'">
+      <button class="btn-source" onclick="location.href='products.html?cat=Electronics'">Source now</button>
+    </div>
+    <div class="cat-promo-right" id="elec-promo"></div>
+  </div>
+</div>
+
+<!-- FASHION PROMO -->
+<div class="container section">
+  <div class="cat-promo-box">
+    <div class="cat-promo-left fashion">
+      <div>
+        <h3>👗 Fashion &amp; Apparel</h3>
+        <p style="font-size:12px;color:#666;margin-top:4px">Trending styles</p>
+      </div>
+      <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=400&q=80&auto=format&fit=crop" alt="Fashion" onerror="this.style.display='none'">
+      <button class="btn-source" onclick="location.href='products.html?cat=Fashion'">Source now</button>
+    </div>
+    <div class="cat-promo-right" id="fashion-promo"></div>
+  </div>
+</div>
+
+<!-- GET QUOTE -->
+<div class="container section">
+  <div class="quote-section">
+    <div class="quote-text">
+      <h2>Ready to do business?<br>Request a free quote.</h2>
+      <p>Connect with thousands of verified suppliers worldwide. Get competitive quotes for bulk orders within 24 hours.</p>
+    </div>
+    <div class="quote-form">
+      <h3>Tell us what you need</h3>
+      <form class="quote-form-el">
+        <div class="form-group"><input class="form-input" type="text" placeholder="Product name / What are you looking for?" required></div>
+        <div class="form-group"><textarea class="form-input" placeholder="Describe your requirements (quantity, specs, etc.)" rows="3"></textarea></div>
+        <div class="form-row">
+          <input class="form-input" type="text" placeholder="Your name" required>
+          <select class="form-select"><option>1-10 pcs</option><option>11-100 pcs</option><option>100-500 pcs</option><option>500+ pcs</option></select>
+        </div>
+        <div class="form-group"><input class="form-input" type="email" placeholder="Business email" required></div>
+        <button type="submit" class="btn-send">Send Inquiry →</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ALL PRODUCTS -->
+<div class="container section">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+    <h2 class="section-title" style="margin-bottom:0">Featured Products</h2>
+    <a href="products.html" style="color:var(--blue);font-size:13px">View all →</a>
+  </div>
+  <div class="products-grid" id="all-products-grid"></div>
+</div>
+
+<!-- SERVICES -->
+<div class="container section">
+  <h2 class="section-title">Our Services</h2>
+  <div class="services-grid">
+    <div class="service-card">
+      <div class="service-img" style="background:linear-gradient(135deg,#667eea,#764ba2)">
+        <div class="service-icon">🛡️</div>
+      </div>
+      <p>Buyer Protection</p>
+    </div>
+    <div class="service-card">
+      <div class="service-img" style="background:linear-gradient(135deg,#f6d365,#fda085)">
+        <div class="service-icon">🚀</div>
+      </div>
+      <p>Fast Shipping</p>
+    </div>
+    <div class="service-card">
+      <div class="service-img" style="background:linear-gradient(135deg,#a8edea,#fed6e3)">
+        <div class="service-icon">🔍</div>
+      </div>
+      <p>Verified Suppliers</p>
+    </div>
+    <div class="service-card">
+      <div class="service-img" style="background:linear-gradient(135deg,#84fab0,#8fd3f4)">
+        <div class="service-icon">💳</div>
+      </div>
+      <p>Secure Payments</p>
+    </div>
+  </div>
+</div>
+
+<!-- SUPPLIERS BY REGION -->
+<div class="container section">
+  <div class="suppliers-box">
+    <h3>🌍 Suppliers by Region</h3>
+    <div class="suppliers-grid">
+      <div class="supplier-region" onclick="showToast('Browsing China suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/cn.png" alt="China">
+        <div><div class="region-name">China</div><div class="region-url">cn.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing USA suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/us.png" alt="USA">
+        <div><div class="region-name">USA</div><div class="region-url">us.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing India suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/in.png" alt="India">
+        <div><div class="region-name">India</div><div class="region-url">in.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing Germany suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/de.png" alt="Germany">
+        <div><div class="region-name">Germany</div><div class="region-url">de.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing Japan suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/jp.png" alt="Japan">
+        <div><div class="region-name">Japan</div><div class="region-url">jp.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing UK suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/gb.png" alt="United Kingdom">
+        <div><div class="region-name">United Kingdom</div><div class="region-url">uk.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing Korea suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/kr.png" alt="Korea">
+        <div><div class="region-name">Korea</div><div class="region-url">kr.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing Brazil suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/br.png" alt="Brazil">
+        <div><div class="region-name">Brazil</div><div class="region-url">br.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing Australia suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/au.png" alt="Australia">
+        <div><div class="region-name">Australia</div><div class="region-url">au.aamart.com</div></div>
+      </div>
+      <div class="supplier-region" onclick="showToast('Browsing France suppliers')">
+        <img class="region-flag" src="https://flagcdn.com/w40/fr.png" alt="France">
+        <div><div class="region-name">France</div><div class="region-url">fr.aamart.com</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NEWSLETTER -->
+<div class="newsletter-section">
+  <div class="container">
+    <h3>Subscribe to our newsletter</h3>
+    <p>Get exclusive deals, new products, and supplier updates straight to your inbox.</p>
+    <form class="newsletter-form">
+      <input class="newsletter-input" type="email" placeholder="Enter your email address">
+      <button class="btn-subscribe" type="submit">Subscribe</button>
+    </form>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;filter:brightness(0) invert(1);"></div>
+        <p>The world's leading B2B marketplace. Source products from verified suppliers globally.</p>
+        <div class="social-links">
+          <div class="social-btn">FB</div>
+          <div class="social-btn">TW</div>
+          <div class="social-btn">IG</div>
+          <div class="social-btn">LI</div>
+          <div class="social-btn">YT</div>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h4>Buy</h4>
+        <ul>
+          <li><a href="#">Registration</a></li>
+          <li><a href="#">Buyer Central</a></li>
+          <li><a href="#">Disputes</a></li>
+          <li><a href="#">Report Fraud</a></li>
+          <li><a href="#">Billing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Sell</h4>
+        <ul>
+          <li><a href="#">Sell on AA Mart</a></li>
+          <li><a href="#">Seller Portal</a></li>
+          <li><a href="#">Logistics</a></li>
+          <li><a href="#">Seller Academy</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Support</h4>
+        <ul>
+          <li><a href="#">Help Center</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+          <li><a href="#">Terms of Use</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Trade Tools</h4>
+        <ul>
+          <li><a href="#">AA Mart Pay</a></li>
+          <li><a href="#">Trade Assurance</a></li>
+          <li><a href="#">Logistics Service</a></li>
+          <li><a href="#">Inspection</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Get the App</h4>
+        <div class="app-badges">
+          <div class="app-badge">
+            <div class="app-badge-icon">🍎</div>
+            <div class="app-badge-text"><div class="small">Download on</div><div class="big">App Store</div></div>
+          </div>
+          <div class="app-badge">
+            <div class="app-badge-icon">🤖</div>
+            <div class="app-badge-text"><div class="small">Get it on</div><div class="big">Google Play</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 AA Mart. All rights reserved. · Privacy Policy · Terms of Use · Sitemap</p>
+    </div>
+  </div>
+</footer>
+</main>
+
+<div class="toast"></div>
+
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  // Render deals
+  const dealsGrid = document.getElementById('deals-grid');
+  if (dealsGrid) {
+    const dealItems = PRODUCTS.slice(0, 5);
+    dealsGrid.innerHTML = dealItems.map(p => `
+      <div class="deal-card" onclick="location.href='product-detail.html?id=${p.id}'">
+        <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+        <div style="display:none;font-size:48px;text-align:center;margin-bottom:8px">${p.emoji}</div>
+        <h4>${p.name.slice(0,30)}...</h4>
+        <span class="deal-badge">${p.badge || '-' + p.discount + '%'}</span>
+      </div>
+    `).join('');
+  }
+
+  // Electronics promo
+  const elecPromo = document.getElementById('elec-promo');
+  if (elecPromo) {
+    const items = PRODUCTS.filter(p => p.category === 'Electronics').slice(0, 8);
+    elecPromo.innerHTML = items.map(p => `
+      <div class="cat-promo-item" onclick="location.href='product-detail.html?id=${p.id}'">
+        <div class="cat-promo-item-info">
+          <h4>${p.name.split(' ').slice(0,3).join(' ')}</h4>
+          <p>From $${p.price}</p>
+        </div>
+        <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">
+      </div>
+    `).join('');
+  }
+
+  // Fashion promo
+  const fashionPromo = document.getElementById('fashion-promo');
+  if (fashionPromo) {
+    const items = PRODUCTS.filter(p => p.category === 'Fashion').slice(0, 8);
+    fashionPromo.innerHTML = items.map(p => `
+      <div class="cat-promo-item" onclick="location.href='product-detail.html?id=${p.id}'">
+        <div class="cat-promo-item-info">
+          <h4>${p.name.split(' ').slice(0,3).join(' ')}</h4>
+          <p>From $${p.price}</p>
+        </div>
+        <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none'">
+      </div>
+    `).join('');
+  }
+
+  // All products grid
+  const allGrid = document.getElementById('all-products-grid');
+  if (allGrid) {
+    const items = PRODUCTS.slice(0, 10);
+    allGrid.innerHTML = items.map(p => `
+      <div class="product-card" onclick="location.href='product-detail.html?id=${p.id}'">
+        <div class="product-thumb">
+          <img src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+          <div class="product-thumb-placeholder" style="display:none">${p.emoji}</div>
+        </div>
+        <div class="product-price">$${p.price}</div>
+        <div class="product-name">${p.name}</div>
+      </div>
+    `).join('');
+  }
+});
+</script>
+</body>
+</html>

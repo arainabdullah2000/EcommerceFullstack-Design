@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product - AA Mart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay"></div>
+<div class="cart-sidebar">
+  <div class="cart-header"><h3>🛒 Shopping Cart</h3><button class="cart-close">×</button></div>
+  <div class="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total:</span><span class="cart-total-val">$0.00</span></div>
+    <button class="btn-checkout">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay"></div>
+<div class="modal-box">
+  <button class="modal-close">×</button>
+  <div class="modal-logo">
+    <div class="modal-logo-inner"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;"></div>
+    <p>Source anything. Sell everything.</p>
+  </div>
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-tab="login">Sign In</button>
+    <button class="modal-tab" data-tab="register">Join Free</button>
+  </div>
+  <div id="login-form" class="modal-form" data-form="login">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Email</label><input id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="login-password" type="password" placeholder="Enter your password"></div>
+      <button class="modal-submit" onclick="handleLogin(event)">Sign In</button>
+    </form>
+    <div class="modal-switch">Don't have an account? <span onclick="switchTab('register')">Join Free</span></div>
+  </div>
+  <div id="register-form" class="modal-form" data-form="register" style="display:none">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Full Name</label><input id="reg-name" type="text" placeholder="Your full name"></div>
+      <div class="modal-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="reg-password" type="password" placeholder="Min. 6 characters"></div>
+      <button class="modal-submit" onclick="handleRegister(event)">Create Account</button>
+    </form>
+    <div class="modal-switch">Already have an account? <span onclick="switchTab('login')">Sign In</span></div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<header class="top-nav">
+  <div class="container">
+    <div class="top-nav-inner">
+      <a href="index.html" class="logo"><img src="logo.png" alt="AA Mart" style="height:36px;width:auto;display:block;"></a>
+      <div class="search-wrap">
+        <select class="search-cat-select"><option>All category</option><option>Electronics</option><option>Fashion</option><option>Home</option><option>Sports</option></select>
+        <input type="text" class="search-input" placeholder="Search products, categories, suppliers...">
+        <button class="search-btn">Search</button>
+        <div class="suggestions-box"></div>
+      </div>
+      <div class="header-actions">
+        <div class="action-item action-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Account</span>
+        </div>
+        <div class="action-item action-orders">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2M9 5a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2"/></svg>
+          <span>Orders</span>
+        </div>
+        <div class="action-item cart-icon" style="position:relative">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span>Cart</span>
+          <span class="cart-count">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN NAV -->
+<nav class="main-nav">
+  <div class="container">
+    <div class="main-nav-inner">
+      <div class="nav-all-cat">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        All categories
+        <div class="cat-dropdown">
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Electronics'">📱 Electronics</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Fashion'">👗 Fashion</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Home'">🏠 Home &amp; Garden</div>
+          <div class="cat-dropdown-item" onclick="location.href='products.html?cat=Sports'">⚽ Sports</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html?cat=Electronics">Electronics</a>
+        <a href="products.html?cat=Fashion">Fashion</a>
+        <a href="products.html?cat=Home">Home</a>
+        <a href="products.html">All Products</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- PRODUCT DETAIL PAGE -->
+<main class="page-detail">
+  <div class="container">
+    <div class="breadcrumb" style="margin-bottom:16px">
+      <a href="index.html">Home</a>
+      <span class="breadcrumb-sep">›</span>
+      <a href="products.html" id="bc-cat">Products</a>
+      <span class="breadcrumb-sep">›</span>
+      <span id="bc-product">Product</span>
+    </div>
+
+    <div id="detail-root">
+    <div class="detail-card">
+      <div class="detail-grid">
+        <div class="detail-images">
+          <div class="main-image">
+            <img id="main-img" src="" alt="Product">
+            <div class="main-image-placeholder" id="main-img-placeholder">📦</div>
+          </div>
+          <div class="thumbnails" id="thumbnails"></div>
+          <div class="supplier-widget">
+            <h4>Verified Supplier</h4>
+            <div class="supplier-info">
+              <div class="supplier-avatar">TG</div>
+              <div>
+                <div class="supplier-name">TechGlobal Co., Ltd.</div>
+                <div class="supplier-meta">⭐ 4.9 · 5 yrs · CN Verified</div>
+              </div>
+            </div>
+            <div class="supplier-btns">
+              <button class="supplier-btn" onclick="showToast('Chat feature coming soon!')">💬 Chat</button>
+              <button class="supplier-btn primary" onclick="showToast('Quote sent to supplier!','success')">📋 Get Quote</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-info">
+          <h1 class="detail-title" id="detail-title">Loading...</h1>
+          <div class="detail-rating" id="detail-rating"></div>
+          <div class="detail-price" id="detail-price"></div>
+          <div id="bulk-pricing"></div>
+          <div class="detail-options" id="detail-options"></div>
+          <div class="quantity-row">
+            <div class="quantity-control">
+              <button class="qty-btn qty-minus">−</button>
+              <input class="qty-input" type="number" value="1" min="1" max="999">
+              <button class="qty-btn qty-plus">+</button>
+            </div>
+            <span class="stock-info"><span class="in-stock">● In Stock</span> — 847 available</span>
+          </div>
+          <div class="detail-actions">
+            <button class="btn-cart" id="add-cart-btn">🛒 Add to Cart</button>
+            <button class="btn-buy" id="buy-btn">⚡ Buy Now</button>
+            <button class="btn-wishlist" id="wish-btn">♡</button>
+          </div>
+          <div class="detail-guarantees">
+            <div class="guarantee-item"><span>🛡️</span> Trade Assurance</div>
+            <div class="guarantee-item"><span>↩️</span> 30-Day Returns</div>
+            <div class="guarantee-item"><span>🚀</span> Fast Delivery</div>
+            <div class="guarantee-item"><span>✅</span> Verified Seller</div>
+          </div>
+          <div class="detail-shipping" style="margin-top:8px">
+            <table>
+              <tr><td>Ships from</td><td>China, USA, EU warehouses available</td></tr>
+              <tr><td>Delivery</td><td>7–21 days standard · 3–7 days express</td></tr>
+              <tr><td>Min. Order</td><td>1 piece (bulk discounts from 10 pcs)</td></tr>
+              <tr><td>Payment</td><td>Credit Card · PayPal · Bank Transfer</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <div class="tab-header">
+        <button class="tab-btn active" data-tab="desc">Description</button>
+        <button class="tab-btn" data-tab="reviews">Reviews</button>
+        <button class="tab-btn" data-tab="specs">Specifications</button>
+        <button class="tab-btn" data-tab="shipping">Shipping</button>
+      </div>
+
+      <div class="tab-content active" id="tab-desc">
+        <div id="desc-content"></div>
+      </div>
+
+      <div class="tab-content" id="tab-reviews">
+        <div style="display:grid;grid-template-columns:200px 1fr;gap:32px;align-items:start">
+          <div style="text-align:center">
+            <div style="font-size:60px;font-weight:800;color:#333;line-height:1">4.8</div>
+            <div style="font-size:20px;color:#f5a623;margin:8px 0">★★★★★</div>
+            <div style="font-size:12px;color:#888">Based on 1,247 reviews</div>
+          </div>
+          <div>
+            ${[5,4,3,2,1].map((n,i) => `
+              <div class="rating-bar">
+                <span class="rating-bar-label">${n}</span>
+                <div class="rating-bar-track"><div class="rating-bar-fill" data-val="${[72,18,6,3,1][i]}"></div></div>
+                <span class="rating-bar-count">${[72,18,6,3,1][i]}%</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div style="margin-top:28px;border-top:1px solid #f0f0f0;padding-top:20px">
+          <div style="padding:16px 0;border-bottom:1px solid #f5f5f5">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">J</div>
+              <div><div style="font-size:13px;font-weight:700">James R.</div><div style="font-size:11px;color:#888">May 2025 · <span style="color:#f5a623">★★★★★</span></div></div>
+            </div>
+            <p style="font-size:13px;color:#555;line-height:1.6">Excellent product, exactly as described. Fast shipping and great build quality. Will definitely order again!</p>
+          </div>
+          <div style="padding:16px 0;border-bottom:1px solid #f5f5f5">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+              <div style="width:36px;height:36px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">S</div>
+              <div><div style="font-size:13px;font-weight:700">Sarah M.</div><div style="font-size:11px;color:#888">Apr 2025 · <span style="color:#f5a623">★★★★★</span></div></div>
+            </div>
+            <p style="font-size:13px;color:#555;line-height:1.6">Amazing value for money. I ordered 50 units for our store and the quality is consistently good. Highly recommend.</p>
+          </div>
+          <div style="text-align:center;margin-top:16px">
+            <button onclick="showToast('All reviews coming soon!')" style="background:#fff;border:1.5px solid var(--gray-border);padding:9px 24px;border-radius:6px;font-size:13px;cursor:pointer">See all reviews</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-content" id="tab-specs">
+        <table style="width:100%;border-collapse:collapse">
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888;width:180px">Brand</td><td style="padding:10px 16px;font-size:13px">TechGlobal Pro</td></tr>
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Model Year</td><td style="padding:10px 16px;font-size:13px">2025</td></tr>
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Warranty</td><td style="padding:10px 16px;font-size:13px">12 months manufacturer warranty</td></tr>
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Certification</td><td style="padding:10px 16px;font-size:13px">CE / FCC / RoHS / ISO 9001</td></tr>
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Min. Order</td><td style="padding:10px 16px;font-size:13px">1 piece</td></tr>
+          <tr style="border-bottom:1px solid #f0f0f0"><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Packaging</td><td style="padding:10px 16px;font-size:13px">Individual retail box + outer carton</td></tr>
+          <tr><td style="padding:10px 16px;background:#f8f9fa;font-size:13px;font-weight:600;color:#888">Supply Ability</td><td style="padding:10px 16px;font-size:13px">10,000 pieces / month</td></tr>
+        </table>
+      </div>
+
+      <div class="tab-content" id="tab-shipping">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <div style="background:#f8f9fa;border-radius:8px;padding:20px">
+            <h4 style="margin-bottom:12px;font-size:14px">📦 Standard Shipping</h4>
+            <p style="font-size:13px;color:#555;line-height:1.8"><strong>Estimated Delivery:</strong> 7–21 business days<br><strong>Cost:</strong> FREE on orders over $50<br><strong>Carriers:</strong> China Post, ePacket, AA Mart Express<br><strong>Tracking:</strong> Available online</p>
+          </div>
+          <div style="background:#f8f9fa;border-radius:8px;padding:20px">
+            <h4 style="margin-bottom:12px;font-size:14px">⚡ Express Shipping</h4>
+            <p style="font-size:13px;color:#555;line-height:1.8"><strong>Estimated Delivery:</strong> 3–7 business days<br><strong>Cost:</strong> From $9.99<br><strong>Carriers:</strong> DHL, FedEx, UPS<br><strong>Tracking:</strong> Real-time door-to-door</p>
+          </div>
+        </div>
+        <div style="margin-top:16px;padding:16px;background:#e8f5e9;border-radius:8px;border-left:4px solid var(--green)">
+          <p style="font-size:13px;color:#2e7d32"><strong>🛡️ Trade Assurance:</strong> Your payment is protected. If the product is not as described or does not arrive, you are fully refunded under our buyer protection program.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="detail-card">
+      <h3 style="font-size:16px;font-weight:700;margin-bottom:4px">You may also like</h3>
+      <p style="font-size:12px;color:#888;margin-bottom:16px">More products from this category</p>
+      <div class="related-grid" id="related-grid"></div>
+    </div>
+
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0;border-bottom:1px solid #2d2d2d">
+      <div class="footer-logo"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;filter:brightness(0) invert(1);"></div>
+      <p style="color:#666;font-size:13px">© 2025 AA Mart. All rights reserved.</p>
+      <div style="display:flex;gap:16px;font-size:13px">
+        <a href="#" style="color:#999">Privacy</a>
+        <a href="#" style="color:#999">Terms</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<div class="toast"></div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script src="js/product-detail.js"></script>
+<script>
+window.addEventListener('load', () => {
+  document.querySelectorAll('.rating-bar-fill').forEach(bar => {
+    const val = bar.dataset.val;
+    setTimeout(() => { bar.style.width = val + '%'; }, 400);
+  });
+});
+</script>
+</body>
+</html>

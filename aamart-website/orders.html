@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders - AA Mart</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    .orders-page { padding: 24px 0 60px; }
+    .orders-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+    .orders-header h2 { font-size: 22px; font-weight: 700; }
+    .orders-tabs { display: flex; gap: 0; border-bottom: 2px solid var(--gray-border); margin-bottom: 20px; }
+    .order-tab { padding: 10px 22px; font-size: 13px; font-weight: 600; cursor: pointer; color: #888; border-bottom: 2px solid transparent; margin-bottom: -2px; background: none; border-left: none; border-right: none; border-top: none; transition: color .2s; }
+    .order-tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .orders-table { background: #fff; border-radius: 8px; overflow: hidden; }
+    .orders-table-header { display: grid; grid-template-columns: 1fr 120px 120px 120px 140px; gap: 16px; padding: 14px 20px; background: #f8f9fa; font-size: 12px; font-weight: 700; color: #888; text-transform: uppercase; border-bottom: 1px solid var(--gray-border); }
+    .order-row { display: grid; grid-template-columns: 1fr 120px 120px 120px 140px; gap: 16px; padding: 16px 20px; border-bottom: 1px solid #f0f0f0; align-items: center; }
+    .order-row:last-child { border-bottom: none; }
+    .order-row:hover { background: #fafbff; }
+    .order-id { font-weight: 700; color: var(--blue); font-size: 13px; }
+    .order-items-preview { font-size: 11px; color: #888; margin-top: 3px; }
+    .order-total { font-weight: 700; font-size: 14px; color: var(--red); }
+    .order-date { font-size: 12px; color: #888; }
+    .order-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+    .status-processing { background: #fff3e0; color: #e65100; }
+    .status-shipped { background: #e3f2fd; color: #1565c0; }
+    .status-delivered { background: #e8f5e9; color: #2e7d32; }
+    .status-cancelled { background: #fce4ec; color: #c62828; }
+    .order-actions { display: flex; gap: 6px; }
+    .order-action-btn { padding: 5px 10px; border: 1.5px solid var(--gray-border); border-radius: 4px; font-size: 11px; cursor: pointer; background: #fff; color: #555; transition: all .2s; }
+    .order-action-btn:hover { border-color: var(--blue); color: var(--blue); }
+    .empty-orders { text-align: center; padding: 80px 20px; }
+    .empty-orders .icon { font-size: 64px; margin-bottom: 16px; }
+    .empty-orders h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
+    .empty-orders p { color: #888; font-size: 14px; margin-bottom: 20px; }
+    .profile-sidebar { background: #fff; border-radius: 8px; padding: 20px; height: fit-content; }
+    .profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: var(--blue); color: #fff; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 0 auto 12px; }
+    .profile-name { text-align: center; font-weight: 700; font-size: 16px; margin-bottom: 4px; }
+    .profile-email { text-align: center; font-size: 12px; color: #888; margin-bottom: 16px; }
+    .profile-nav { border-top: 1px solid var(--gray-border); padding-top: 16px; }
+    .profile-nav a { display: flex; align-items: center; gap: 10px; padding: 10px 12px; font-size: 13px; border-radius: 6px; color: #555; margin-bottom: 2px; }
+    .profile-nav a:hover, .profile-nav a.active { background: var(--blue-light); color: var(--blue); }
+    .orders-layout { display: grid; grid-template-columns: 220px 1fr; gap: 16px; }
+    .not-logged { text-align: center; padding: 80px 20px; background: #fff; border-radius: 8px; }
+  </style>
+</head>
+<body>
+
+<!-- CART SIDEBAR -->
+<div class="cart-overlay"></div>
+<div class="cart-sidebar">
+  <div class="cart-header"><h3>🛒 Shopping Cart</h3><button class="cart-close">×</button></div>
+  <div class="cart-items"></div>
+  <div class="cart-footer">
+    <div class="cart-total"><span>Total:</span><span class="cart-total-val">$0.00</span></div>
+    <button class="btn-checkout">Proceed to Checkout →</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay"></div>
+<div class="modal-box">
+  <button class="modal-close">×</button>
+  <div class="modal-logo">
+    <div class="modal-logo-inner"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;"></div>
+    <p>Source anything. Sell everything.</p>
+  </div>
+  <div class="modal-tabs">
+    <button class="modal-tab active" data-tab="login">Sign In</button>
+    <button class="modal-tab" data-tab="register">Join Free</button>
+  </div>
+  <div id="login-form" class="modal-form" data-form="login">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Email</label><input id="login-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="login-password" type="password" placeholder="Enter your password"></div>
+      <button class="modal-submit" onclick="handleLogin(event)">Sign In</button>
+    </form>
+    <div class="modal-switch">Don't have an account? <span onclick="switchTab('register')">Join Free</span></div>
+  </div>
+  <div id="register-form" class="modal-form" data-form="register" style="display:none">
+    <div class="modal-alert" style="display:none"></div>
+    <form onsubmit="return false">
+      <div class="modal-field"><label>Full Name</label><input id="reg-name" type="text" placeholder="Your full name"></div>
+      <div class="modal-field"><label>Email</label><input id="reg-email" type="email" placeholder="you@company.com"></div>
+      <div class="modal-field"><label>Password</label><input id="reg-password" type="password" placeholder="Min. 6 characters"></div>
+      <button class="modal-submit" onclick="handleRegister(event)">Create Account</button>
+    </form>
+    <div class="modal-switch">Already have an account? <span onclick="switchTab('login')">Sign In</span></div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+<header class="top-nav">
+  <div class="container">
+    <div class="top-nav-inner">
+      <a href="index.html" class="logo"><img src="logo.png" alt="AA Mart" style="height:36px;width:auto;display:block;"></a>
+      <div class="search-wrap">
+        <select class="search-cat-select"><option>All category</option><option>Electronics</option><option>Fashion</option><option>Home</option><option>Sports</option></select>
+        <input type="text" class="search-input" placeholder="Search products...">
+        <button class="search-btn">Search</button>
+        <div class="suggestions-box"></div>
+      </div>
+      <div class="header-actions">
+        <div class="action-item action-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          <span>Account</span>
+        </div>
+        <div class="action-item cart-icon" style="position:relative">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <span>Cart</span>
+          <span class="cart-count">0</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- MAIN NAV -->
+<nav class="main-nav">
+  <div class="container">
+    <div class="main-nav-inner">
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="products.html?cat=Electronics">Electronics</a>
+        <a href="products.html?cat=Fashion">Fashion</a>
+        <a href="products.html">All Products</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- ORDERS PAGE -->
+<main class="orders-page">
+  <div class="container">
+    <div class="breadcrumb" style="margin-bottom:16px">
+      <a href="index.html">Home</a><span class="breadcrumb-sep">›</span><span>My Orders</span>
+    </div>
+    <div id="orders-root"></div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:20px 0">
+      <div class="footer-logo"><img src="logo.png" alt="AA Mart" style="height:32px;width:auto;filter:brightness(0) invert(1);"></div>
+      <p style="color:#666;font-size:13px">© 2025 AA Mart. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<div class="toast"></div>
+<script src="js/data.js"></script>
+<script src="js/main.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const root = document.getElementById('orders-root');
+  function render() {
+    if (!currentUser) {
+      root.innerHTML = `
+        <div class="not-logged">
+          <div style="font-size:60px;margin-bottom:16px">🔐</div>
+          <h3>Please sign in to view your orders</h3>
+          <p style="color:#888;margin:8px 0 20px">Track your purchases and manage your order history.</p>
+          <button onclick="openModal('login')" style="background:var(--blue);color:#fff;border:none;padding:12px 32px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer">Sign In</button>
+        </div>`;
+      return;
+    }
+    const orders = store.get('aamart_orders') || [];
+    root.innerHTML = `
+      <div class="orders-layout">
+        <aside class="profile-sidebar">
+          <div class="profile-avatar">${currentUser.name[0].toUpperCase()}</div>
+          <div class="profile-name">${currentUser.name}</div>
+          <div class="profile-email">${currentUser.email}</div>
+          <nav class="profile-nav">
+            <a href="orders.html" class="active">📦 My Orders</a>
+            <a href="products.html">🔍 Browse Products</a>
+            <a href="#" onclick="currentUser=null;store.set('aamart_user',null);showToast('Logged out');setTimeout(()=>location.reload(),600);return false" style="color:var(--red)">🚪 Sign Out</a>
+          </nav>
+        </aside>
+        <div>
+          <div class="orders-header"><h2>My Orders</h2><span style="font-size:13px;color:#888">${orders.length} order${orders.length !== 1 ? 's' : ''} total</span></div>
+          <div class="orders-tabs">
+            <button class="order-tab active">All Orders</button>
+            <button class="order-tab">Processing</button>
+            <button class="order-tab">Shipped</button>
+            <button class="order-tab">Delivered</button>
+          </div>
+          ${orders.length === 0 ? `
+            <div class="orders-table">
+              <div class="empty-orders">
+                <div class="icon">📦</div>
+                <h3>No orders yet</h3>
+                <p>Your order history will appear here once you make a purchase.</p>
+                <a href="products.html" style="background:var(--blue);color:#fff;border:none;padding:12px 28px;border-radius:6px;font-size:14px;font-weight:700;cursor:pointer;display:inline-block">Start Shopping →</a>
+              </div>
+            </div>
+          ` : `
+            <div class="orders-table">
+              <div class="orders-table-header">
+                <span>Order</span><span>Date</span><span>Total</span><span>Status</span><span>Actions</span>
+              </div>
+              ${orders.map(o => {
+                const statusClass = o.status === 'Delivered' ? 'status-delivered' : o.status === 'Shipped' ? 'status-shipped' : o.status === 'Cancelled' ? 'status-cancelled' : 'status-processing';
+                const preview = o.items ? o.items.map(i => i.name.split(' ').slice(0,2).join(' ')).slice(0,2).join(', ') : 'Items';
+                return `
+                  <div class="order-row">
+                    <div><div class="order-id">${o.id}</div><div class="order-items-preview">${preview}${o.items && o.items.length > 2 ? ' +' + (o.items.length - 2) + ' more' : ''}</div></div>
+                    <div class="order-date">${o.date}</div>
+                    <div class="order-total">$${typeof o.total === 'number' ? o.total.toFixed(2) : o.total}</div>
+                    <div><span class="order-status ${statusClass}">${o.status}</span></div>
+                    <div class="order-actions">
+                      <button class="order-action-btn" onclick="showToast('Order details coming soon!')">View</button>
+                      ${o.status === 'Processing' ? `<button class="order-action-btn" onclick="cancelOrder('${o.id}')">Cancel</button>` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `}
+        </div>
+      </div>`;
+  }
+
+  window.cancelOrder = function(id) {
+    const orders = store.get('aamart_orders') || [];
+    const idx = orders.findIndex(o => o.id === id);
+    if (idx !== -1) { orders[idx].status = 'Cancelled'; store.set('aamart_orders', orders); render(); showToast('Order cancelled', 'error'); }
+  };
+
+  render();
+  document.addEventListener('aamart_user_changed', render);
+});
+</script>
+</body>
+</html>
